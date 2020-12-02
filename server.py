@@ -36,6 +36,21 @@ decimg=cv2.imdecode(data, 1)
 cv2.imwrite('test.png', decimg)
 
 # Image Test code
+"""
 cv2.imshow('SERVER', decimg)
 cv2.waitKey(0)
 cv2.destroyAllWindows() 
+"""
+
+from detectron2.config import get_cfg
+from detectron2.engine import DefaultPredictor
+cfg = get_cfg()
+cfg.MODEL.DEVICE='cpu'
+cfg.MODEL.WEIGHTS = "./model_final_1201.pth"
+cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.6
+
+predictor = DefaultPredictor(cfg)
+outputs = predictor(decimg)
+
+print(outputs["instances"])
+print('### stop running server ###')
