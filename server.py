@@ -48,7 +48,7 @@ from detectron2 import model_zoo
 cfg = get_cfg()
 cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
 cfg.MODEL.DEVICE='cpu'
-cfg.MODEL.WEIGHTS = "./model_final_1201.pth"
+cfg.MODEL.WEIGHTS = "./model_final_1204.pth"
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.6
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 15
 
@@ -64,8 +64,7 @@ print('### stop running server ###')
 instances = outputs['instances']
 titleInstance = instances[instances.pred_classed >= 8]
 if (len(titleInstance) == 0):
-    print('Error: There is no title text!!')
-    return
+    raise Exception('There is no title text')
 
 titleClass = titleInstance.pred_classes.numpy()[0]
 titleBox = titleInstance.pred_boxes.tensor.numpu()
