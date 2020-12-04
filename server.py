@@ -62,7 +62,7 @@ print('### stop running server ###')
 
 # get inference information
 instances = outputs['instances']
-titleInstance = instances[instances.pred_classed >= 8]
+titleInstance = instances[instances.pred_classes >= 8]
 if (len(titleInstance) == 0):
     raise Exception('There is no title text')
 
