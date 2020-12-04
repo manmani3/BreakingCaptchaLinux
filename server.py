@@ -60,6 +60,24 @@ print(outputs["instances"])
 print('-----------------------------------------------------')
 print('### stop running server ###')
 
+# get inference information
+instances = outputs['instances']
+titleInstance = instances[instances.pred_classed >= 8]
+if (len(titleInstance) == 0):
+    print('Error: There is no title text!!')
+    return
+
+titleClass = titleInstance.pred_classes.numpy()[0]
+titleBox = titleInstance.pred_boxes.tensor.numpu()
+titleLeftBottomOffest = (titleBox[0][0], titleBox[0][3])
+
+targetInstances = instances[instances.pred_classed == (titleClass - 8)]
+targetInstancesMasks = targetInstances.pred_masks.numpy()
+
+# tuple format. ex) (23.145, 35.222)
+result['titleLeftBottomOffset'] = titleLeftBottomOffset
+# 3D array. each 2D array is mask for each one instance
+result['targetInstancesMasks'] = targetInstancesMasks
 
 # return inference result to client
 import pickle
@@ -68,10 +86,10 @@ PORT = 9999
 
 print('connecting to ' + HOST + ', ' + str(PORT))
 s = socket.socket()
-result = s.connect((HOST, PORT))
+s.connect((HOST, PORT))
 
-mask = pickle.dumps(outputs["instances"].pred_masks)
-s.send(mask)
+resultData = pickle.dumps(result)
+s.send(resultData)
 
 s.close()
 print('Return data to client')
