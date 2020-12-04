@@ -44,13 +44,34 @@ cv2.destroyAllWindows()
 
 from detectron2.config import get_cfg
 from detectron2.engine import DefaultPredictor
+from detectron2 import model_zoo
 cfg = get_cfg()
+cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
 cfg.MODEL.DEVICE='cpu'
 cfg.MODEL.WEIGHTS = "./model_final_1201.pth"
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.6
+cfg.MODEL.ROI_HEADS.NUM_CLASSES = 15
 
 predictor = DefaultPredictor(cfg)
 outputs = predictor(decimg)
 
+print('-----------------------------------------------------')
 print(outputs["instances"])
+print('-----------------------------------------------------')
 print('### stop running server ###')
+
+
+# return inference result to client
+import pickle
+HOST = '218.209.197.49'
+PORT = 9999
+
+print('connecting to ' + HOST + ', ' + str(PORT))
+s = socket.socket()
+result = s.connect((HOST, PORT))
+
+mask = pickle.dumps(outputs["instances"].pred_masks)
+s.send(mask)
+
+s.close()
+print('Return data to client')
