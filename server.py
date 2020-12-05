@@ -21,15 +21,17 @@ TCP_PORT = 1234
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(('', TCP_PORT))
 
-while True:
-
+while True :
     s.listen(True)
     conn, addr = s.accept()
 
-    print("accpet")
+    print("accpet") 
     print(addr)
 
     # recive 16bit
+    category = int(recvall(conn, 16))
+    print('received category:', category)
+
     length = recvall(conn, 16)
     stringData = recvall(conn, int(length))
     data = numpy.frombuffer(stringData, dtype='uint8')
@@ -51,8 +53,9 @@ while True:
     outputs = predictor(decimg)
 
     print('-----------------------------------------------------')
-    print(outputs["instances"])
+    print('total instances:', outputs["instances"])
     print('-----------------------------------------------------')
+    print('### stop running server ###')
 
     # get inference information
     instances = outputs['instances']
@@ -65,7 +68,7 @@ while True:
     titleBox = titleInstance.pred_boxes.tensor.numpu()
     titleLeftBottomOffest = (titleBox[0][0], titleBox[0][3])
     """
-    targetInstances = instances[instances.pred_classes < 8] # == (titleClass - 8)]
+    targetInstances = instances[instances.pred_classes == category]
     targetInstancesMasks = targetInstances.pred_masks.numpy()
 
     result = {}
@@ -73,7 +76,7 @@ while True:
     # result['titleLeftBottomOffset'] = titleLeftBottomOffset
     # 3D array. each 2D array is mask for each one instance
     result['targetInstancesMasks'] = targetInstancesMasks
-    print("result: ")
+    print('target Instance:', len(targetInstancesMasks))
     print(result)
     # return inference result to client
 
@@ -83,3 +86,4 @@ while True:
     conn.send(str(len(resultData)).ljust(16).encode('utf-8'))
     conn.send(resultData)
     conn.close()
+s.close()
