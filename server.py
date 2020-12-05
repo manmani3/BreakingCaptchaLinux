@@ -15,10 +15,11 @@ def recvall(sock, count):
 
 
 TCP_IP = '127.0.0.1'
-TCP_PORT = 1234
+TCP_PORT = 1237
 
 # open tcp socket and wait
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind(('', TCP_PORT))
 
 while True :
@@ -45,9 +46,9 @@ while True :
     cfg = get_cfg()
     cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
     cfg.MODEL.DEVICE='cpu'
-    cfg.MODEL.WEIGHTS = "./model_final_1204.pth"
+    cfg.MODEL.WEIGHTS = "./model_final_201205.pth"
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.6
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 15
+    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 16
 
     predictor = DefaultPredictor(cfg)
     outputs = predictor(decimg)
